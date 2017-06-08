@@ -42,6 +42,21 @@ def csv_data_loader(file_name):
 	exp_details = pandas.read_csv(file_name, header=0)
 	exp_df = exp_details.fillna(value=0)
 
-	print exp_df.iloc[:,[1,4]]
-	## search for the name SourceBarcode and DestinationBarcode from the dataframe selected columns 
+	return exp_df 
+
+
+## Looping through the dataframe columns will give the list of columns to be looked  
+col_names = [] 
+
+for cols in det_df: 
+    try:
+        if det_df[cols].apply(lambda x: x.str.contains("SourceBarcode")).any():
+            col_names.append(cols) 
+    except:
+        pass
+
+print col_names
+
+print exp_df.iloc[:,[1,4]]
+## search for the name SourceBarcode and DestinationBarcode from the dataframe selected columns 
  
