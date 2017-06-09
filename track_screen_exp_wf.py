@@ -55,6 +55,14 @@ for cols in det_df:
     except:
         pass
 
+for cols in det_df: 
+    try:
+        if det_df[cols].apply(lambda x: x.str.contains("DestinationBarcode")).any():
+            col_names.append(cols) 
+    except:
+        pass
+
+
 print col_names
 
 print exp_df.iloc[:,[1,4]]
