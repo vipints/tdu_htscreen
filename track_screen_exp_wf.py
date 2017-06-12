@@ -4,7 +4,7 @@ The tracking of screening experiment from multiple steps
 
 Copyright (C)
 
-2017 - ETH Zürich, NEXUS Personalized Health Technologies
+2017 - ETH Zuerich, NEXUS Personalized Health Technologies
 
 """
 
@@ -45,25 +45,33 @@ def csv_data_loader(file_name):
 	return exp_df 
 
 
+intermediate_file = "%s/exp-setup/VI000821.tab.csv" % experiment_path
+
+## read the file
+raw_df = csv_data_loader(intermediate_file)
+
 ## Looping through the dataframe columns will give the list of columns to be looked  
 col_names = [] 
 
-for cols in det_df: 
-    try:
-        if det_df[cols].apply(lambda x: x.str.contains("SourceBarcode")).any():
-            col_names.append(cols) 
-    except:
-        pass
-
-for cols in det_df: 
-    try:
-        if det_df[cols].apply(lambda x: x.str.contains("DestinationBarcode")).any():
-            col_names.append(cols) 
-    except:
-        pass
-
+for cols in raw_df: 
+	try:
+		## keyword match is exact now and need to replaced with wild TODO something like x.str.contains("word")
+		if raw_df[cols].apply(lambda x: "SourceBarcode" in str(x)).any() | \
+			raw_df[cols].apply(lambda x: "DestinationBarcode" in str(x)).any():
+			col_names.append(cols) 
+	except:
+		pass 
 
 print col_names
+
+## selection of barcodes after the label
+
+
+print raw_df[col_names[1]]
+
+sys.exit(-1)
+
+
 
 print exp_df.iloc[:,[1,4]]
 ## search for the name SourceBarcode and DestinationBarcode from the dataframe selected columns 
