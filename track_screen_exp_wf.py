@@ -34,17 +34,17 @@ intermediate_file = "%s/exp-setup/VI000821.tab.csv" % experiment_path
 ## the module for that here: 
 
 def csv_data_loader(file_name):
-	"""
-	load full data from the csv file, returns a dataframe. 
-	
-	@args file_name: csv file generated in a screening experiment
-	@type file_name: str 
-	"""
-    
-	exp_details = pandas.read_csv(file_name, header=0)
-	exp_df = exp_details.fillna(value=0)
+    """
+    load full data from the csv file, returns a dataframe. 
 
-	return exp_df 
+    @args file_name: csv file generated in a screening experiment
+    @type file_name: str 
+    """
+
+    exp_details = pandas.read_csv(file_name, header=0)
+    exp_df = exp_details.fillna(value=0)
+
+    return exp_df 
 
 
 def barcode_identifier(raw_df):
