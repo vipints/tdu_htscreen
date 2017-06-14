@@ -105,16 +105,40 @@ def barcode_identifier(raw_df):
     return(src_barcodes, dst_barcodes)
 
 
+def search_intermediate_files(base_path):
+    """
+    search for different intermediate files in a screening experiment and 
+    returns a list with complete csv and tab files.
+
+    @args base_path: a location where experiment files are stored 
+    @type base_path: str
+    """
+
+    ## search for the files in a specified path
+    csv_tab_files = [] 
+
+    if os.path.isdir(base_path):
+        ## walk through the entire base path 
+        for root, dirs, files in os.walk(base_path):
+            for fname in files: 
+                file_prefix, ext = os.path.splitext(fname)
+                
+                ## selecting files with csv and tab extension  
+                if ext in [".csv", ".tab"]:
+                    tmp_file = os.path.join(root, fname) 
+                    csv_tab_files.append(tmp_file)
+
+    return csv_tab_files
+
+
+## getting the experiment files 
+exp_files = search_intermediate_files(experiment_path) 
+
 ## read the file
-csv_df = csv_data_loader(intermediate_file)
+#csv_df = csv_data_loader(intermediate_file)
 
 ## get the barcodes
-src_bc, dst_bc = barcode_identifier(csv_df)
+#src_bc, dst_bc = barcode_identifier(csv_df)
 
-## TODO search for the files in a specified path
-## csv or tab 
-
-print src_bc 
-print dst_bc
 
 sys.exit(-1)
