@@ -133,12 +133,20 @@ def search_intermediate_files(base_path):
 
 ## getting the experiment files 
 exp_files = search_intermediate_files(experiment_path) 
+print('Total number of %d file(s) found' % len(exp_files))
+
+print exp_files[0]
+print exp_files[1]
 
 ## read the file
+##FIXME the csv file is not reading as it is from the NAS server
 #csv_df = csv_data_loader(intermediate_file)
+csv_df = csv_data_loader(exp_files[0])
 
 ## get the barcodes
 #src_bc, dst_bc = barcode_identifier(csv_df)
+
+## TODO build the graph with barcodes from these files. 
 
 
 sys.exit(-1)
