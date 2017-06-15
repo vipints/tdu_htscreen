@@ -135,8 +135,9 @@ def search_intermediate_files(base_path):
 exp_files = search_intermediate_files(experiment_path) 
 print('Total number of %d file(s) found' % len(exp_files))
 
+
+exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
 print exp_files[0]
-print exp_files[1]
 
 ## read the file
 ##FIXME the csv file is not reading as it is from the NAS server
@@ -144,7 +145,9 @@ print exp_files[1]
 csv_df = csv_data_loader(exp_files[0])
 
 ## get the barcodes
-#src_bc, dst_bc = barcode_identifier(csv_df)
+src_bc, dst_bc = barcode_identifier(csv_df)
+print src_bc 
+print dst_bc
 
 ## TODO build the graph with barcodes from these files. 
 
