@@ -33,6 +33,22 @@ intermediate_file = "%s/exp-setup/VI000821.tab.csv" % experiment_path
 ## When the program finds a csv it needs to be read
 ## the module for that here: 
 
+import csv 
+
+def plain_csv_reader(file_name):
+    """
+    """
+    with open(file_name, "rbU") as csvfile:
+        rows = csv.reader(csvfile)
+        for line in rows:
+            print line 
+            ## ['ProcessIdentifier', '6580']
+            ## []
+            ## ['DateTime', 'SourceBarcode', 'SourcePlateType', 'SourceWell', 'DestinationBarcode', 'DestinationPlateType', 'DestinationWell', 'Volume']
+
+    ## make it dataframe and return 
+
+
 def csv_data_loader(file_name):
     """
     load full data from the csv file, returns a dataframe. 
@@ -136,7 +152,7 @@ exp_files = search_intermediate_files(experiment_path)
 print('Total number of %d file(s) found' % len(exp_files))
 
 
-exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
+#exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
 print exp_files[0]
 
 ## read the file
@@ -150,6 +166,5 @@ print src_bc
 print dst_bc
 
 ## TODO build the graph with barcodes from these files. 
-
 
 sys.exit(-1)
