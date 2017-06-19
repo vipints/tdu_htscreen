@@ -12,6 +12,7 @@ Copyright (C)
 import os 
 import sys
 
+import csv 
 import pandas 
 
 ## this will be the single point of contact for tracking the setup of experiment
@@ -32,21 +33,6 @@ intermediate_file = "%s/exp-setup/VI000821.tab.csv" % experiment_path
 
 ## When the program finds a csv it needs to be read
 ## the module for that here: 
-
-import csv 
-
-def plain_csv_reader(file_name):
-    """
-    """
-    with open(file_name, "rbU") as csvfile:
-        rows = csv.reader(csvfile)
-        for line in rows:
-            print line 
-            ## ['ProcessIdentifier', '6580']
-            ## []
-            ## ['DateTime', 'SourceBarcode', 'SourcePlateType', 'SourceWell', 'DestinationBarcode', 'DestinationPlateType', 'DestinationWell', 'Volume']
-
-    ## make it dataframe and return 
 
 
 def csv_data_loader(file_name):
@@ -147,23 +133,70 @@ def search_intermediate_files(base_path):
     return csv_tab_files
 
 
+def plain_csv_reader(file_name):
+    """
+    Pandas Error: tokenizing data when dealing with a CSV file that have 
+    variable number of columns and read_csv inferred the number of columns
+    from the first few rows. To avoid this, use csv module.
+
+    @args file_name: csv file generated in a screening experiment
+    @type file_name: str 
+    """
+
+    src_barcodes = [] 
+    dst_barcodes = [] 
+    barcode_flag = 0 
+
+    with open(file_name, "rbU") as csvfile:
+        rows = csv.reader(csvfile)
+        for line in rows:
+            if not line:
+                ## resetting the flag variable 
+                barcode_flag = 0 
+                continue 
+            
+            try:
+                ## FIXME general keyword for searching barcodes
+                src_barcode_ind = line.index("SourceBarcode")
+                dst_barcode_ind = line.index("DestinationBarcode")
+                barcode_flag = 1 
+                continue
+            except:
+                pass 
+
+            if barcode_flag:
+                try:
+                    tmp_src = line[src_barcode_ind]
+                    src_barcodes.append(tmp_src)
+                except IndexError: 
+                    print("error: not able to locate SourceBarcode")
+                try:
+                    tmp_dst = line[dst_barcode_ind]
+                    dst_barcodes.append(tmp_dst)
+                except IndexError: 
+                    print("error: not able to locate DestinationBarcode")
+
+    return(src_barcodes, dst_barcodes)
+
+
 ## getting the experiment files 
 exp_files = search_intermediate_files(experiment_path) 
 print('Total number of %d file(s) found' % len(exp_files))
 
-
 #exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
 print exp_files[0]
 
-## read the file
-##FIXME the csv file is not reading as it is from the NAS server
-#csv_df = csv_data_loader(intermediate_file)
-csv_df = csv_data_loader(exp_files[0])
+## get the barcodes
+src_bc, dst_bc = plain_csv_reader(exp_files[0])
+
+#print src_bc 
+#print dst_bc
+
+## read the formated csv files. This works with pandas 
+#csv_df = csv_data_loader(exp_files[0])
 
 ## get the barcodes
-src_bc, dst_bc = barcode_identifier(csv_df)
-print src_bc 
-print dst_bc
+#src_bc, dst_bc = barcode_identifier(csv_df)
 
 ## TODO build the graph with barcodes from these files. 
 
