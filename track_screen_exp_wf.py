@@ -25,10 +25,6 @@ stock_name = "Kinase"
 
 experiment_path = "/Users/vipin/Documents/tdu_screens/"
 
-intermediate_file = "%s/exp-setup/VI000821.tab.csv" % experiment_path
-## From here on, program aims to search multiple folders to scan intermediate files
-## Based on the above mentioned stock name, it will generate the first mapping to the 
-## target. From there it will look for the remaining associations. 
 ## TODO When do the program stop searching for the next association.
 
 ## When the program finds a csv it needs to be read
