@@ -122,7 +122,8 @@ def search_intermediate_files(base_path):
                 file_prefix, ext = os.path.splitext(fname)
                 
                 ## selecting files with csv and tab extension  
-                if ext in [".csv", ".tab"]:
+                #if ext in [".csv", ".tab"]:
+                if ext in [".csv"]:
                     tmp_file = os.path.join(root, fname) 
                     csv_tab_files.append(tmp_file)
 
@@ -180,13 +181,27 @@ exp_files = search_intermediate_files(experiment_path)
 print('Total number of %d file(s) found' % len(exp_files))
 
 #exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
-print exp_files[0]
+#print exp_files[0]
 
-## get the barcodes
-src_bc, dst_bc = plain_csv_reader(exp_files[0])
+from collections import defaultdict 
 
-#print src_bc 
-#print dst_bc
+src_dst_maps = defaultdict(list) 
+
+for asc_file in exp_files:
+    ## get the barcodes
+    src_bc, dst_bc = plain_csv_reader(asc_file)
+    
+    try:
+        for idx, barcode in enumerate(src_bc):
+            src_dst_maps[barcode].append(dst_bc[idx])
+    except IndexError:
+        print("warning: file %s missing barcodes" % asc_file)
+        pass 
+    #print asc_file 
+    #print src_bc 
+    #print dst_bc
+    #print 
+print src_dst_maps
 
 ## read the formated csv files. This works with pandas 
 #csv_df = csv_data_loader(exp_files[0])
