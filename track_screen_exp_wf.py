@@ -197,12 +197,14 @@ for asc_file in exp_files:
     except IndexError:
         print("warning: file %s missing barcodes" % asc_file)
         pass 
+
     #print asc_file 
     #print src_bc 
     #print dst_bc
     #print 
 print src_dst_maps
 
+node = "ACTITARG-K960PL-1" 
 ## read the formated csv files. This works with pandas 
 #csv_df = csv_data_loader(exp_files[0])
 
