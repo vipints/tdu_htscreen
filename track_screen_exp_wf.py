@@ -15,6 +15,8 @@ import sys
 import csv 
 import pandas 
 
+from collections import defaultdict, deque  
+
 ## this will be the single point of contact for tracking the setup of experiment
 ## This serve as the source of the experiment start 
  
@@ -155,7 +157,9 @@ def plain_csv_reader(file_name):
             try:
                 ## FIXME general keyword for searching barcodes
                 src_barcode_ind = line.index("SourceBarcode")
+                src_well_ind = line.index("SourceWell")
                 dst_barcode_ind = line.index("DestinationBarcode")
+                dst_well_ind = line.index("DestinationWell")
                 barcode_flag = 1 
                 continue
             except:
@@ -164,53 +168,81 @@ def plain_csv_reader(file_name):
             if barcode_flag:
                 try:
                     tmp_src = line[src_barcode_ind]
-                    src_barcodes.append(tmp_src)
+                    tmp_src_well = line[src_well_ind]
+                    src_barcodes.append((tmp_src, tmp_src_well))
                 except IndexError: 
                     print("error: not able to locate SourceBarcode")
                 try:
                     tmp_dst = line[dst_barcode_ind]
-                    dst_barcodes.append(tmp_dst)
+                    tmp_dst_well = line[dst_well_ind]
+                    dst_barcodes.append((tmp_dst, tmp_dst_well))
                 except IndexError: 
                     print("error: not able to locate DestinationBarcode")
 
     return(src_barcodes, dst_barcodes)
 
 
+def dfs_search(graph, vertex):
+    """
+    method to reduce the experiment direction from the barcodes extracted from
+    different intermediate files. 
+
+    @args graph: a dictionary with source and destination barcodes 
+    @type graph: defaultdict
+    @args vertex: starting point to infer the path 
+    @type vertex: str
+    """
+    
+    stack = [vertex]
+    visited = [vertex]
+
+    while stack:
+        try:
+            vertex = min(list(set(graph[vertex]) - set(visited)))
+            stack.append(vertex)
+            visited.append(vertex) 
+        except: 
+            stack.pop()
+            if (len(stack) > 0):
+                vertex = stack[-1]
+    
+    return visited
+
+
 ## getting the experiment files 
 exp_files = search_intermediate_files(experiment_path) 
 print('Total number of %d file(s) found' % len(exp_files))
 
-#exp_files[0] = "/Users/vipin/Documents/tdu_screens/exp-setup/VI000821.csv"
-#print exp_files[0]
-
-from collections import defaultdict 
-
+## get the barcodes
 src_dst_maps = defaultdict(list) 
 
 for asc_file in exp_files:
-    ## get the barcodes
     src_bc, dst_bc = plain_csv_reader(asc_file)
     
+    ## barcode mapping from source to destination
     try:
         for idx, barcode in enumerate(src_bc):
             src_dst_maps[barcode].append(dst_bc[idx])
     except IndexError:
-        print("warning: file %s missing barcodes" % asc_file)
+        print("warning: file %s missing destination barcodes" % asc_file)
         pass 
 
-    #print asc_file 
-    #print src_bc 
-    #print dst_bc
-    #print 
-print src_dst_maps
+#print src_dst_maps
 
+## TODO searh the python dict with similarity key search to identify the right key 
 node = "ACTITARG-K960PL-1" 
+
+barcodes2 = {('Mel_Lib_2', 'Whole'): [('TC001404', 'Whole')], ('ACTITARG-K960PL-1', 'Whole'): [('VI000821', 'Q1')], ('Mel_Lib_4', 'Whole'): [('TC001406', 'Whole')], ('ACTITARG-K960PL-3', 'Whole'): [('VI000821', 'Q3')], ('VI000821', 'Q4'): [('Mel_Lib_4', 'Whole')], ('ACTITARG-K960PL-2', 'Whole'): [('VI000821', 'Q2')], ('VI000821', 'Q2'): [('Mel_Lib_2', 'Whole')], ('VI000821', 'Q3'): [('Mel_Lib_3', 'Whole')], ('Mel_Lib_1', 'Whole'): [('TC001403', 'Whole')], ('ACTITARG-K960PL-4', 'Whole'): [('VI000821', 'Q4')], ('Mel_Lib_3', 'Whole'): [('TC001405', 'Whole')], ('VI000821', 'Q1'): [('Mel_Lib_1', 'Whole')]}
+
+## TODO check with default dict 
+## build the graph with extracted barcodes and resolve the experiment path
+root = dfs_search(barcodes2, ("ACTITARG-K960PL-1", "Whole"))
+#print root 
+
 ## read the formated csv files. This works with pandas 
 #csv_df = csv_data_loader(exp_files[0])
 
 ## get the barcodes
 #src_bc, dst_bc = barcode_identifier(csv_df)
-
-## TODO build the graph with barcodes from these files. 
 
 sys.exit(-1)
