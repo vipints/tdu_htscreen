@@ -15,22 +15,7 @@ import sys
 import csv 
 import pandas 
 
-from collections import defaultdict, deque  
-
-## this will be the single point of contact for tracking the setup of experiment
-## This serve as the source of the experiment start 
- 
-stock_name = "Kinase"
-
-## The above provided name will be a primary name of the screen 
-## Now program need a path to look for the generated folders and files
-
-experiment_path = "/Users/vipin/Documents/tdu_screens/"
-
-## TODO When do the program stop searching for the next association.
-
-## When the program finds a csv it needs to be read
-## the module for that here: 
+from collections import defaultdict
 
 
 def csv_data_loader(file_name):
@@ -209,16 +194,18 @@ def dfs_search(graph, vertex):
     return visited
 
 
-## getting the experiment files 
+## files and folders associated with multiple screens 
+experiment_path = "/Users/vipin/Documents/tdu_screens/"
+print('Experiment data imports %s' % experiment_path)
+
+## getting all intermediate experiment files from provided path 
 exp_files = search_intermediate_files(experiment_path) 
 print('Total number of %d file(s) found' % len(exp_files))
 
-## get the barcodes
+## get the barcodes from all files
 src_dst_maps = defaultdict(list) 
-
 for asc_file in exp_files:
     src_bc, dst_bc = plain_csv_reader(asc_file)
-    
     ## barcode mapping from source to destination
     try:
         for idx, barcode in enumerate(src_bc):
@@ -232,12 +219,9 @@ for asc_file in exp_files:
 ## TODO searh the python dict with similarity key search to identify the right key 
 node = "ACTITARG-K960PL-1" 
 
-barcodes2 = {('Mel_Lib_2', 'Whole'): [('TC001404', 'Whole')], ('ACTITARG-K960PL-1', 'Whole'): [('VI000821', 'Q1')], ('Mel_Lib_4', 'Whole'): [('TC001406', 'Whole')], ('ACTITARG-K960PL-3', 'Whole'): [('VI000821', 'Q3')], ('VI000821', 'Q4'): [('Mel_Lib_4', 'Whole')], ('ACTITARG-K960PL-2', 'Whole'): [('VI000821', 'Q2')], ('VI000821', 'Q2'): [('Mel_Lib_2', 'Whole')], ('VI000821', 'Q3'): [('Mel_Lib_3', 'Whole')], ('Mel_Lib_1', 'Whole'): [('TC001403', 'Whole')], ('ACTITARG-K960PL-4', 'Whole'): [('VI000821', 'Q4')], ('Mel_Lib_3', 'Whole'): [('TC001405', 'Whole')], ('VI000821', 'Q1'): [('Mel_Lib_1', 'Whole')]}
-
-## TODO check with default dict 
 ## build the graph with extracted barcodes and resolve the experiment path
-root = dfs_search(barcodes2, ("ACTITARG-K960PL-1", "Whole"))
-#print root 
+root = dfs_search(src_dst_maps, ("ACTITARG-K960PL-1", "Whole"))
+print root 
 
 ## read the formated csv files. This works with pandas 
 #csv_df = csv_data_loader(exp_files[0])
