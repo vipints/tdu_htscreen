@@ -141,10 +141,10 @@ def plain_csv_reader(file_name):
             
             try:
                 ## FIXME general keyword for searching barcodes
-                src_barcode_ind = line.index("SourceBarcode")
                 src_well_ind = line.index("SourceWell")
-                dst_barcode_ind = line.index("DestinationBarcode")
+                src_barcode_ind = line.index("SourceBarcode")
                 dst_well_ind = line.index("DestinationWell")
+                dst_barcode_ind = line.index("DestinationBarcode")
                 barcode_flag = 1 
                 continue
             except:
@@ -167,29 +167,29 @@ def plain_csv_reader(file_name):
     return(src_barcodes, dst_barcodes)
 
 
-def dfs_search(graph, vertex):
+def dfs_search(graph, start):
     """
     method to reduce the experiment direction from the barcodes extracted from
     different intermediate files. 
 
     @args graph: a dictionary with source and destination barcodes 
     @type graph: defaultdict
-    @args vertex: starting point to infer the path 
-    @type vertex: str
+    @args start: starting point to infer the path 
+    @type start: str
     """
     
-    stack = [vertex]
-    visited = [vertex]
+    stack = [start]
+    visited = [start]
 
     while stack:
         try:
-            vertex = min(list(set(graph[vertex]) - set(visited)))
-            stack.append(vertex)
-            visited.append(vertex) 
+            start = min(list(set(graph[start]) - set(visited)))
+            stack.append(start)
+            visited.append(start) 
         except: 
             stack.pop()
             if (len(stack) > 0):
-                vertex = stack[-1]
+                start = stack[-1]
     
     return visited
 
@@ -217,7 +217,7 @@ for asc_file in exp_files:
 #print src_dst_maps
 
 ## TODO searh the python dict with similarity key search to identify the right key 
-node = "ACTITARG-K960PL-1" 
+stock_node_name = "ACTITARG-K960PL-1" 
 
 ## build the graph with extracted barcodes and resolve the experiment path
 root = dfs_search(src_dst_maps, ("ACTITARG-K960PL-1", "Whole"))
