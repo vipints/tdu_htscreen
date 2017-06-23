@@ -194,9 +194,35 @@ def dfs_search(graph, start):
     return visited
 
 
+def partial_key_search(brcs, search_key):
+    """
+    partial match of a tuple key of a dictionary
+
+    @args brcs: a dictionary with source and destination barcodes
+    @type brcs: defaultdict
+    @args search_key: searching key word, one element of the tuple key 
+    @type search_key: str
+    """
+    ## making key in tuple form
+    search_key = (search_key, None) 
+
+    start_vertex = [] 
+    for src_wellp, des_wellp in brcs.iteritems():
+        if all(xp == xq or xq is None for xp, xq in zip(src_wellp, search_key)):
+            start_vertex.append(src_wellp) 
+
+    return start_vertex
+
+## TODO experiment run based on the YAML configuration file
+## 1. it is better to have the YAML file for history of experiment search
+## 2. minimal input requirement for the executing the experiment
+
 ## files and folders associated with multiple screens 
 experiment_path = "/Users/vipin/Documents/tdu_screens/"
 print('Experiment data imports %s' % experiment_path)
+
+## searh the python dict with similarity key search to identify the right key 
+stock_compd_name = "ACTITARG-K960PL-1" 
 
 ## getting all intermediate experiment files from provided path 
 exp_files = search_intermediate_files(experiment_path) 
@@ -205,6 +231,9 @@ print('Total number of %d file(s) found' % len(exp_files))
 ## get the barcodes from all files
 src_dst_maps = defaultdict(list) 
 for asc_file in exp_files:
+    ## TODO parsing details about the experiment 
+    ## 1. mapping information about the barcode and experiment details
+
     src_bc, dst_bc = plain_csv_reader(asc_file)
     ## barcode mapping from source to destination
     try:
@@ -215,13 +244,21 @@ for asc_file in exp_files:
         pass 
 
 #print src_dst_maps
-
-## TODO searh the python dict with similarity key search to identify the right key 
-stock_node_name = "ACTITARG-K960PL-1" 
+## do the key search to identify the experiment to search
+start_node = partial_key_search(src_dst_maps, stock_compd_name) 
 
 ## build the graph with extracted barcodes and resolve the experiment path
-root = dfs_search(src_dst_maps, ("ACTITARG-K960PL-1", "Whole"))
-print root 
+if start_node:
+    for compound in start_node: 
+        root = dfs_search(src_dst_maps, compound)
+        print("%s\n%s" % (compound, root))
+else:
+    print("error: no stock library %s found" % stock_compd_name)
+
+## TODO the final representation of the experiment flow path 
+## 1. visual representation - 
+## 2. csv or txt files 
+## 3. information about the screen readout file ie, the last element of list root  
 
 ## read the formated csv files. This works with pandas 
 #csv_df = csv_data_loader(exp_files[0])
