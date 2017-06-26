@@ -167,19 +167,23 @@ def plain_csv_reader(file_name):
     return(src_barcodes, dst_barcodes)
 
 
-def dfs_search(graph, start):
+def dfs_search(graph, start, visited=[]):
     """
     method to reduce the experiment direction from the barcodes extracted from
     different intermediate files. 
 
     @args graph: a dictionary with source and destination barcodes 
     @type graph: defaultdict
-    @args start: starting point to infer the path 
-    @type start: str
+    @args start: starting point to infer the path ('ACTITARG-K960PL-1', 'Q1') 
+    @type start: tuple 
     """
     
+    ##FIXME depends on the well plate 96 or 384 the tracking whole and QX are 
+    ## concern to get the right combination
+
     stack = [start]
-    visited = [start]
+    if not visited:
+        visited = [start]
 
     while stack:
         try:
@@ -190,6 +194,10 @@ def dfs_search(graph, start):
             stack.pop()
             if (len(stack) > 0):
                 start = stack[-1]
+        else:
+            node = partial_key_search(graph, start[0])
+            for ele in node:
+                dfs_search(graph, ele, visited)
     
     return visited
 
@@ -219,10 +227,16 @@ def partial_key_search(brcs, search_key):
 
 ## files and folders associated with multiple screens 
 experiment_path = "/Users/vipin/Documents/tdu_screens/"
+experiment_path = "/Users/vipin/tmp/track_files"
 print('Experiment data imports %s' % experiment_path)
 
 ## searh the python dict with similarity key search to identify the right key 
 stock_compd_name = "ACTITARG-K960PL-1" 
+stock_compd_name = "Drug08_A"
+
+## plate reformatting direction
+well_96_to_384 = True
+well_384_to_96 = False
 
 ## getting all intermediate experiment files from provided path 
 exp_files = search_intermediate_files(experiment_path) 
@@ -235,6 +249,9 @@ for asc_file in exp_files:
     ## 1. mapping information about the barcode and experiment details
 
     src_bc, dst_bc = plain_csv_reader(asc_file)
+    #print src_bc
+    #print dst_bc
+    #print 
     ## barcode mapping from source to destination
     try:
         for idx, barcode in enumerate(src_bc):
@@ -243,17 +260,22 @@ for asc_file in exp_files:
         print("warning: file %s missing destination barcodes" % asc_file)
         pass 
 
-#print src_dst_maps
+#print src_dst_maps.keys()
 ## do the key search to identify the experiment to search
 start_node = partial_key_search(src_dst_maps, stock_compd_name) 
+#print start_node
 
 ## build the graph with extracted barcodes and resolve the experiment path
 if start_node:
     for compound in start_node: 
         root = dfs_search(src_dst_maps, compound)
-        print("%s\n%s" % (compound, root))
+        #print("%s\n%s" % (compound, root))
+        for wfsteps in root:
+            sys.stdout.write("%s," % wfsteps[0])
+        print
 else:
     print("error: no stock library %s found" % stock_compd_name)
+
 
 ## TODO the final representation of the experiment flow path 
 ## 1. visual representation - 
